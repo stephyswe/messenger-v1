@@ -1,9 +1,9 @@
 "use client";
 
 import axios from "axios";
-import { signIn } from "next-auth/react";
-import router from "next/router";
-import { useCallback, useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { BsGithub, BsGoogle } from "react-icons/bs";
@@ -15,8 +15,17 @@ import Input from "@/app/components/inputs/Input";
 type Variant = "LOGIN" | "REGISTER";
 
 function AuthForm() {
+  const session = useSession();
+  const router = useRouter();
+
   const [variant, setVariant] = useState<Variant>("LOGIN");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (session?.status === "authenticated") {
+      router.push("/users");
+    }
+  }, [router, session?.status]);
 
   const toggleVariant = useCallback(() => {
     if (variant === "LOGIN") {
@@ -57,8 +66,7 @@ function AuthForm() {
           }
 
           if (callback?.ok) {
-            toast.success("Account created!");
-            // router.push("/conversations");
+            router.push("/users");
           }
         })
         .catch(() => toast.error("Something went wrong!"))
@@ -77,8 +85,7 @@ function AuthForm() {
           }
 
           if (callback?.ok) {
-            toast.success("Logged in!");
-            // router.push("/conversations");
+            router.push("/users");
           }
         })
         .catch(() => toast.error("Something went wrong!"))
