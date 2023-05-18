@@ -1,9 +1,11 @@
 "use client";
 
 import axios from "axios";
+import { signIn } from "next-auth/react";
 import router from "next/router";
 import { useCallback, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
 import { BsGithub, BsGoogle } from "react-icons/bs";
 
 import AuthSocialButton from "@/app/(site)/components/AuthSocialButton";
@@ -41,18 +43,66 @@ function AuthForm() {
 
     if (variant === "REGISTER") {
       // Axios Register
-      axios.post("/api/register", data);
+      axios
+        .post("/api/register", data)
+        .then(() =>
+          signIn("credentials", {
+            ...data,
+            redirect: false,
+          })
+        )
+        .then((callback) => {
+          if (callback?.error) {
+            toast.error("Invalid credentials!");
+          }
+
+          if (callback?.ok) {
+            toast.success("Account created!");
+            // router.push("/conversations");
+          }
+        })
+        .catch(() => toast.error("Something went wrong!"))
+        .finally(() => setIsLoading(false));
     }
 
     if (variant === "LOGIN") {
       // NextAuth SignIn
+      signIn("credentials", {
+        ...data,
+        redirect: false,
+      })
+        .then((callback) => {
+          if (callback?.error) {
+            toast.error("Invalid credentials!");
+          }
+
+          if (callback?.ok) {
+            toast.success("Logged in!");
+            // router.push("/conversations");
+          }
+        })
+        .catch(() => toast.error("Something went wrong!"))
+        .finally(() => setIsLoading(false));
     }
+  };
 
-    const socialAction = (action: string) => {
-      setIsLoading(true);
+  const socialAction = (action: string) => {
+    setIsLoading(true);
 
-      // NextAuth Social Sign In
-    };
+    // NextAuth Social Sign In
+    signIn(action, { redirect: false })
+      .then((callback) => {
+        if (callback?.error) {
+          toast.error("Invalid credentials!");
+        }
+
+        if (callback?.ok) {
+          toast.success("Logged in Social!");
+          // router.push("/conversations");
+        }
+      })
+      .catch(() => toast.error("Something went wrong!"))
+      .finally(() => setIsLoading(false));
   };
 
   return (
@@ -123,8 +173,14 @@ function AuthForm() {
           </div>
 
           <div className="mt-6 flex gap-2">
-            <AuthSocialButton icon={BsGithub} onClick={() => {}} />
-            <AuthSocialButton icon={BsGoogle} onClick={() => {}} />
+            <AuthSocialButton
+              icon={BsGithub}
+              onClick={() => socialAction("github")}
+            />
+            <AuthSocialButton
+              icon={BsGoogle}
+              onClick={() => socialAction("google")}
+            />
           </div>
         </div>
         <div
