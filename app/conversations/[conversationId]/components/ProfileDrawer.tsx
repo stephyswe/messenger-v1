@@ -7,6 +7,7 @@ import { Fragment, useMemo, useState } from "react";
 import { IoClose, IoTrash } from "react-icons/io5";
 
 import Avatar from "@/app/components/Avatar";
+import ConfirmModal from "@/app/conversations/[conversationId]/components/ConfirmModal";
 import useOtherUser from "@/app/hooks/useOtherUser";
 
 interface ProfileDrawerProps {
@@ -43,6 +44,11 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
 
   return (
     <>
+      <ConfirmModal
+        isOpen={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+      />
+
       <Transition.Root show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={onClose}>
           <Transition.Child
