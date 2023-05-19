@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import Avatar from "@/app/components/Avatar";
+import LoadingModal from "@/app/components/LoadingModal";
 
 /* import LoadingModal from "@/app/components/modals/LoadingModal"; */
 
@@ -28,6 +29,7 @@ const UserBox: React.FC<UserBoxProps> = ({ data }) => {
 
   return (
     <>
+      {isLoading && <LoadingModal />}
       <div
         onClick={handleClick}
         className="
